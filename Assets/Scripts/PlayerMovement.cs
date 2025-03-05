@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using TMPro;
+using UnityEngine.Events;
 
 public class PlayerMovement : MonoBehaviour
 {
@@ -22,6 +23,9 @@ public class PlayerMovement : MonoBehaviour
     public bool alive = true;
     private bool moving = false;
     private bool jumpedState = false;
+    public PlayerState currentState = PlayerState.Normal;
+    public UnityEvent dinoDamaged;
+
     // Start is called before the first frame update
     void Start()
     {
@@ -56,9 +60,28 @@ public class PlayerMovement : MonoBehaviour
         if (other.gameObject.CompareTag("Enemy") && alive)
         {
             Debug.Log("Collided with goomba!");
-            alive = false;
+            //alive = false;
+            dinoDamaged.Invoke();
+        }
+        if (other.gameObject.CompareTag("Slow"))
+        {
+            Debug.Log("Collided with slow!");
+            //alive = false;
+            GetComponent<DinoStateController>().currentPowerupType = PowerupType.Slow;
+        }
+        if (other.gameObject.CompareTag("ScoreMult"))
+        {
+            Debug.Log("Collided with score mult!");
+            //alive = false;
+            GetComponent<DinoStateController>().SetPowerup(PowerupType.ScoreMult);
         }
     }
+    public void DamageDino()
+    {
+        GetComponent<DinoStateController>().SetPowerup(PowerupType.Dead);
+        Debug.Log("Setting powerup type to dead");
+    }
+
     public void Jump()
     {
         if (alive && onGroundState)
@@ -79,5 +102,6 @@ public class PlayerMovement : MonoBehaviour
         alive = true;
     }
 }
+
 //Events: Level restart, score change, death, powerup stuff, 
 //FSM: Alive running, alive jumping, dead, powerup1, powerup2
